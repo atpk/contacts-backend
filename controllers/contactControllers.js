@@ -32,7 +32,7 @@ const createContact = asyncHandler(async (req, res) => {
   const { name, email, phone } = req.body;
   if (!name || !email || !phone) {
     res.status(400);
-    throw new Error("empty fields!");
+    throw new Error("All fields are mandatory! (name, email, phone");
   }
 
   // db connection
@@ -100,7 +100,7 @@ const updateContact = asyncHandler(async (req, res) => {
 
   if (!contact) {
     res.status(404);
-    throw new Error("no contact with given id");
+    throw new Error("Contact not found!");
   }
 
   // field values to update
