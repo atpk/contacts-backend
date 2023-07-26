@@ -13,7 +13,11 @@ const getContacts = asyncHandler(async (req, res) => {
   const collection = db.collection("Contact");
 
   // fetch contacts from db
-  const contacts = await collection.find({}).toArray();
+  const contacts = await collection
+    .find({ user_id: new ObjectId(req.user.id) })
+    .toArray();
+
+  contacts.forEach((doc) => delete doc.user_id);
 
   res.status(200).json(contacts);
 });
@@ -37,6 +41,7 @@ const createContact = asyncHandler(async (req, res) => {
 
   // insert into db
   const contact = await collection.insertOne({
+    user_id: new ObjectId(req.user.id),
     name,
     email,
     phone,
@@ -59,6 +64,7 @@ const getContact = asyncHandler(async (req, res) => {
   // fetch contacts from db using _id
   const contact = await collection.findOne({
     _id: new ObjectId(req.params.id),
+    user_id: new ObjectId(req.user.id),
   });
 
   // response
@@ -66,6 +72,7 @@ const getContact = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Contact not found!");
   }
+  delete contact.user_id;
   res.status(200).json(contact);
 });
 
@@ -88,6 +95,7 @@ const updateContact = asyncHandler(async (req, res) => {
   const id = new ObjectId(req.params.id);
   const contact = await collection.findOne({
     _id: id,
+    user_id: new ObjectId(req.user.id),
   });
 
   if (!contact) {
@@ -118,6 +126,7 @@ const updateContact = asyncHandler(async (req, res) => {
     acknowledged: result.acknowledged,
     modifiedCount: result.modifiedCount,
   });
+  delete contact.user_id;
   res.status(200).json(contact);
 });
 
